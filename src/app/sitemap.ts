@@ -1,12 +1,12 @@
 /**
  * Chunked sitemap — async-id pattern from day one.
  *
- * Scale: home + 193 country hubs + 193 × 263 = 50,759 country×role pages
- * = 50,953 URLs. Past Google's 50,000-URL-per-sitemap cap, so chunking
- * is required from launch (not optional).
+ * Scale: home + 193 country hubs + 519 role hubs + 193 × 263 = 50,759
+ * country×role pages = 51,472 URLs. Past Google's 50,000-URL-per-sitemap
+ * cap, so chunking is required from launch (not optional).
  *
  * Layout:
- *   - Chunk 0  = home + 193 country hubs (194 URLs)
+ *   - Chunk 0  = home + 193 country hubs + 519 role hubs (713 URLs)
  *   - Chunks 1..N = country×role grid, sliced at CHUNK URLs each
  *     (50,759 ÷ 25,000 = 3 chunks at current scale → 4 sitemaps total)
  *
@@ -23,7 +23,7 @@
 
 import type { MetadataRoute } from "next";
 import { COUNTRIES_SERVED } from "@/lib/countries";
-import { JOB_ROLES } from "@/lib/roles";
+import { JOB_ROLES, ALL_ROLES } from "@/lib/roles";
 
 const SITE_ORIGIN = "https://world.almiworld.com";
 const CHUNK = 25000;
@@ -73,13 +73,23 @@ export default async function sitemap({
       changeFrequency: "weekly",
       priority: 1.0,
     };
-    const hubs: MetadataRoute.Sitemap = COUNTRIES_SERVED.map((c) => ({
+    const countryHubs: MetadataRoute.Sitemap = COUNTRIES_SERVED.map((c) => ({
       url: `${SITE_ORIGIN}/${c.slug}`,
       lastModified,
       changeFrequency: "weekly",
       priority: 0.8,
     }));
-    return [home, ...hubs];
+    // New for Phase 5: 519 role-hub gateway pages from the shared package.
+    // These live at the same URL shape as country hubs (`/[slug]`) — the
+    // [country]/page.tsx dispatcher routes by data lookup. Zero collisions
+    // with country slugs verified during integration.
+    const roleHubs: MetadataRoute.Sitemap = ALL_ROLES.map((r) => ({
+      url: `${SITE_ORIGIN}/${r.slug}`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.75,
+    }));
+    return [home, ...countryHubs, ...roleHubs];
   }
 
   const all = buildAllRoleUrls();
