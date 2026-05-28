@@ -1,9 +1,31 @@
+/**
+ * AlmiWorld parent — single-segment hub dispatcher.
+ *
+ * Next.js only allows ONE dynamic segment at this level, so this route
+ * serves BOTH country hubs (e.g., /united-states) AND the new role hubs
+ * (e.g., /software-engineer). The param name "country" is kept for
+ * backward compatibility — the value is just a string slug that the
+ * handler routes by data lookup.
+ *
+ * Dispatch priority (verified zero slug collisions between 193 country
+ * slugs and 519 package role slugs as of 2026-05-28):
+ *   1. Slug is a known package role → render RoleHub (Phase 5)
+ *   2. Slug is a known country → render CountryHub (original)
+ *   3. Else → notFound()
+ */
+
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getCountryBySlug } from "@/lib/countries";
-import { JOB_ROLES, BASE_ROLES } from "@/lib/roles";
+import {
+  JOB_ROLES,
+  BASE_ROLES,
+  PACKAGE_ROLE_SLUGS,
+  getRoleBySlug,
+} from "@/lib/roles";
 import { PRODUCTS } from "@/lib/products";
+import { RoleHub } from "@/components/RoleHub";
 
 type Params = { country: string };
 
@@ -12,8 +34,36 @@ export async function generateMetadata({
 }: {
   params: Promise<Params>;
 }): Promise<Metadata> {
-  const { country } = await params;
-  const c = getCountryBySlug(country);
+  const { country: slug } = await params;
+
+  // Role-hub metadata (Phase 5 surface)
+  if (PACKAGE_ROLE_SLUGS.has(slug)) {
+    const role = getRoleBySlug(slug);
+    if (role) {
+      return {
+        title: `${role.name} — Build career across AlmiCV, AlmiSalary, AlmiJob`,
+        description: `Everything you need for a ${role.name} career — CV templates, global salary data, open jobs, and prep — all in one place from AlmiWorld.`,
+        alternates: {
+          canonical: `https://world.almiworld.com/${role.slug}`,
+        },
+        openGraph: {
+          title: `${role.name} — AlmiWorld`,
+          description: `Build your ${role.name} career across the AlmiWorld family.`,
+          url: `https://world.almiworld.com/${role.slug}`,
+          type: "website",
+          siteName: "AlmiWorld",
+        },
+        twitter: {
+          card: "summary",
+          title: `${role.name} — AlmiWorld`,
+          description: `Build your ${role.name} career across the AlmiWorld family.`,
+        },
+      };
+    }
+  }
+
+  // Country-hub metadata (original behavior)
+  const c = getCountryBySlug(slug);
   if (!c) return { title: "Not found" };
   return {
     title: `Build your career in ${c.name} — AlmiWorld`,
@@ -21,17 +71,24 @@ export async function generateMetadata({
   };
 }
 
-export default async function CountryHubPage({
+export default async function HubPage({
   params,
 }: {
   params: Promise<Params>;
 }) {
-  const { country } = await params;
-  const c = getCountryBySlug(country);
+  const { country: slug } = await params;
+
+  // 1. Role hub — handles all 519 package roles
+  if (PACKAGE_ROLE_SLUGS.has(slug)) {
+    return <RoleHub slug={slug} />;
+  }
+
+  // 2. Country hub — original behavior preserved verbatim
+  const c = getCountryBySlug(slug);
   if (!c) notFound();
 
-  const featuredRoles = BASE_ROLES.map((slug) =>
-    JOB_ROLES.find((r) => r.slug === slug),
+  const featuredRoles = BASE_ROLES.map((s) =>
+    JOB_ROLES.find((r) => r.slug === s),
   ).filter((r): r is NonNullable<typeof r> => Boolean(r));
 
   return (

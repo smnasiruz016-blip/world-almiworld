@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@smnasiruz016-blip/job-roles": "^0.1.2",
     "clsx": "^2.1.1",
     "lucide-react": "^1.11.0",
     "next": "16.2.4",

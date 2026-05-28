@@ -1,20 +1,43 @@
 /**
- * world.almiworld.com — canonical role registry.
+ * world.almiworld.com — canonical role registry, sourced from
+ * @smnasiruz016-blip/job-roles v0.1.2+ (cross-product master registry).
  *
- * Mirrors `almi-cv-v2/src/lib/roles.ts` verbatim (which itself mirrors
- * `almijob-v2/lib/job-roles.ts`, the canonical source across the
- * AlmiWorld product family).
+ * Phase 5 integration: this module is a THIN ADAPTER over the shared
+ * package. It preserves the historical AlmiWorld parent public surface:
  *
- * 263 roles across 18 sectors:
- *   - 254 from AlmiCV_Job_Roles_List.docx
- *   - 9 religious roles (PR #32 in almijob-v2): religious-scholar base + 8
- *     aliases (imam, khateeb, mufti, priest, pastor, rabbi, pandit, monk)
+ *   Role                  — { name, slug, sector, aliases? }  (unchanged shape)
+ *   JOB_ROLES             — 263 roles, bounded to the original AlmiWorld set
+ *                           so the existing 50,759 country×role URLs DON'T
+ *                           change shape (zero URL regression)
+ *   BASE_ROLES            — 11 canonical base roles (unchanged)
+ *   JOB_ROLES_BY_SLUG     — Map<slug, Role>
+ *   JOB_ROLES_BY_SECTOR   — Map<sectorDisplayString, Role[]>
+ *   getRoleBySlug(slug)   — alias + primary slug lookup (delegates to package)
  *
- * Sync discipline: when AlmiJob's `lib/job-roles.ts` evolves, mirror here.
- * Slugs are ASCII-kebab and globally unique — cross-product deep links
- * (AlmiJob ↔ AlmiSalary ↔ AlmiStudy ↔ AlmiCV) rely on slug identity.
+ * NEW for Phase 5 (role-hub gateway pages):
+ *   ALL_ROLES             — full 519 from the package, used by the new
+ *                           /[role-slug] hub pages (one per role across
+ *                           every product in the AlmiWorld family)
+ *   PACKAGE_ROLE_SLUGS    — Set<string> of all 519 slugs for O(1) dispatch
+ *
+ * Slug discipline: ASCII kebab, globally unique. Renames are breaking.
+ *
+ * Used by:
+ *   - app/[slug]/page.tsx — dispatches between country hub and role hub
+ *   - app/[slug]/[role]/page.tsx — country×role grid (50,759 URLs)
+ *   - app/sitemap.ts — chunked sitemap emission
+ *   - cross-product deep links to AlmiCV / AlmiJob / AlmiSalary / AlmiStudy
  */
 
+import {
+  getAllRoles as pkgGetAllRoles,
+  getRoleBySlug as pkgGetRoleBySlug,
+  Industry,
+  type JobRole as PkgJobRole,
+} from "@smnasiruz016-blip/job-roles";
+
+/** Historical AlmiWorld Role shape — preserved so existing consumers
+ *  compile unchanged. */
 export type Role = {
   name: string;
   slug: string;
@@ -22,296 +45,156 @@ export type Role = {
   aliases?: string[];
 };
 
-export const JOB_ROLES: Role[] = [
-  // Technology & IT
-  { name: "Software Engineer", slug: "software-engineer", sector: "Technology & IT" },
-  { name: "Software Developer", slug: "software-developer", sector: "Technology & IT" },
-  { name: "Web Developer", slug: "web-developer", sector: "Technology & IT" },
-  { name: "Frontend Developer", slug: "frontend-developer", sector: "Technology & IT" },
-  { name: "Backend Developer", slug: "backend-developer", sector: "Technology & IT" },
-  { name: "Full Stack Developer", slug: "full-stack-developer", sector: "Technology & IT" },
-  { name: "Mobile App Developer", slug: "mobile-app-developer", sector: "Technology & IT" },
-  { name: "DevOps Engineer", slug: "devops-engineer", sector: "Technology & IT" },
-  { name: "Data Analyst", slug: "data-analyst", sector: "Technology & IT" },
-  { name: "Data Scientist", slug: "data-scientist", sector: "Technology & IT" },
-  { name: "Data Engineer", slug: "data-engineer", sector: "Technology & IT" },
-  { name: "Machine Learning Engineer", slug: "machine-learning-engineer", sector: "Technology & IT" },
-  { name: "IT Support Technician", slug: "it-support-technician", sector: "Technology & IT" },
-  { name: "Help Desk Technician", slug: "help-desk-technician", sector: "Technology & IT" },
-  { name: "System Administrator", slug: "system-administrator", sector: "Technology & IT" },
-  { name: "Network Engineer", slug: "network-engineer", sector: "Technology & IT" },
-  { name: "Cloud Engineer", slug: "cloud-engineer", sector: "Technology & IT" },
-  { name: "Cybersecurity Analyst", slug: "cybersecurity-analyst", sector: "Technology & IT" },
-  { name: "QA", slug: "qa", sector: "Technology & IT", aliases: ["Test Engineer"] },
-  { name: "Database Administrator", slug: "database-administrator", sector: "Technology & IT" },
-  { name: "IT Project Manager", slug: "it-project-manager", sector: "Technology & IT" },
-  { name: "Product Manager", slug: "product-manager", sector: "Technology & IT" },
-  { name: "UX Designer", slug: "ux-designer", sector: "Technology & IT" },
-  { name: "UI Designer", slug: "ui-designer", sector: "Technology & IT" },
-  { name: "Scrum Master", slug: "scrum-master", sector: "Technology & IT" },
-  // Healthcare & Medical
-  { name: "Registered Nurse", slug: "registered-nurse", sector: "Healthcare & Medical", aliases: ["Nurse", "RN"] },
-  { name: "Nurse Practitioner", slug: "nurse-practitioner", sector: "Healthcare & Medical" },
-  { name: "Doctor", slug: "doctor", sector: "Healthcare & Medical", aliases: ["Physician", "GP"] },
-  { name: "Medical Assistant", slug: "medical-assistant", sector: "Healthcare & Medical" },
-  { name: "Caregiver", slug: "caregiver", sector: "Healthcare & Medical", aliases: ["Care Assistant"] },
-  { name: "Healthcare Assistant", slug: "healthcare-assistant", sector: "Healthcare & Medical" },
-  { name: "Pharmacist", slug: "pharmacist", sector: "Healthcare & Medical" },
-  { name: "Pharmacy Technician", slug: "pharmacy-technician", sector: "Healthcare & Medical" },
-  { name: "Dental Assistant", slug: "dental-assistant", sector: "Healthcare & Medical" },
-  { name: "Dentist", slug: "dentist", sector: "Healthcare & Medical" },
-  { name: "Physiotherapist", slug: "physiotherapist", sector: "Healthcare & Medical" },
-  { name: "Occupational Therapist", slug: "occupational-therapist", sector: "Healthcare & Medical" },
-  { name: "Radiographer", slug: "radiographer", sector: "Healthcare & Medical" },
-  { name: "Lab Technician", slug: "lab-technician", sector: "Healthcare & Medical" },
-  { name: "Phlebotomist", slug: "phlebotomist", sector: "Healthcare & Medical" },
-  { name: "Midwife", slug: "midwife", sector: "Healthcare & Medical" },
-  { name: "Paramedic", slug: "paramedic", sector: "Healthcare & Medical" },
-  { name: "Medical Receptionist", slug: "medical-receptionist", sector: "Healthcare & Medical" },
-  { name: "Home Health Aide", slug: "home-health-aide", sector: "Healthcare & Medical" },
-  { name: "Optician", slug: "optician", sector: "Healthcare & Medical" },
-  { name: "Massage Therapist", slug: "massage-therapist", sector: "Healthcare & Medical" },
-  // Education & Training
-  { name: "Teacher", slug: "teacher", sector: "Education & Training" },
-  { name: "Primary School Teacher", slug: "primary-school-teacher", sector: "Education & Training" },
-  { name: "Secondary School Teacher", slug: "secondary-school-teacher", sector: "Education & Training" },
-  { name: "Teaching Assistant", slug: "teaching-assistant", sector: "Education & Training" },
-  { name: "Lecturer", slug: "lecturer", sector: "Education & Training" },
-  { name: "Tutor", slug: "tutor", sector: "Education & Training" },
-  { name: "ESL", slug: "esl", sector: "Education & Training", aliases: ["English Teacher"] },
-  { name: "Special Education Teacher", slug: "special-education-teacher", sector: "Education & Training" },
-  { name: "School Counsellor", slug: "school-counsellor", sector: "Education & Training" },
-  { name: "Academic Advisor", slug: "academic-advisor", sector: "Education & Training" },
-  { name: "Trainer", slug: "trainer", sector: "Education & Training" },
-  { name: "Instructional Designer", slug: "instructional-designer", sector: "Education & Training" },
-  { name: "Education Coordinator", slug: "education-coordinator", sector: "Education & Training" },
-  { name: "Librarian", slug: "librarian", sector: "Education & Training" },
-  { name: "Childcare Worker", slug: "childcare-worker", sector: "Education & Training" },
-  { name: "Nursery Assistant", slug: "nursery-assistant", sector: "Education & Training" },
-  // Business, Office & Admin
-  { name: "Administrative Assistant", slug: "administrative-assistant", sector: "Business, Office & Admin" },
-  { name: "Office Manager", slug: "office-manager", sector: "Business, Office & Admin" },
-  { name: "Executive Assistant", slug: "executive-assistant", sector: "Business, Office & Admin" },
-  { name: "Personal Assistant", slug: "personal-assistant", sector: "Business, Office & Admin" },
-  { name: "Receptionist", slug: "receptionist", sector: "Business, Office & Admin" },
-  { name: "Office Administrator", slug: "office-administrator", sector: "Business, Office & Admin" },
-  { name: "Data Entry Clerk", slug: "data-entry-clerk", sector: "Business, Office & Admin" },
-  { name: "Secretary", slug: "secretary", sector: "Business, Office & Admin" },
-  { name: "Operations Manager", slug: "operations-manager", sector: "Business, Office & Admin" },
-  { name: "Project Manager", slug: "project-manager", sector: "Business, Office & Admin" },
-  { name: "Business Analyst", slug: "business-analyst", sector: "Business, Office & Admin" },
-  { name: "Management Consultant", slug: "management-consultant", sector: "Business, Office & Admin" },
-  { name: "Project Coordinator", slug: "project-coordinator", sector: "Business, Office & Admin" },
-  { name: "Office Clerk", slug: "office-clerk", sector: "Business, Office & Admin" },
-  { name: "Virtual Assistant", slug: "virtual-assistant", sector: "Business, Office & Admin" },
-  // Finance & Accounting
-  { name: "Accountant", slug: "accountant", sector: "Finance & Accounting" },
-  { name: "Accounts Assistant", slug: "accounts-assistant", sector: "Finance & Accounting" },
-  { name: "Bookkeeper", slug: "bookkeeper", sector: "Finance & Accounting" },
-  { name: "Financial Analyst", slug: "financial-analyst", sector: "Finance & Accounting" },
-  { name: "Auditor", slug: "auditor", sector: "Finance & Accounting" },
-  { name: "Tax Advisor", slug: "tax-advisor", sector: "Finance & Accounting" },
-  { name: "Payroll Officer", slug: "payroll-officer", sector: "Finance & Accounting" },
-  { name: "Credit Controller", slug: "credit-controller", sector: "Finance & Accounting" },
-  { name: "Financial Controller", slug: "financial-controller", sector: "Finance & Accounting" },
-  { name: "Investment Analyst", slug: "investment-analyst", sector: "Finance & Accounting" },
-  { name: "Bank Teller", slug: "bank-teller", sector: "Finance & Accounting" },
-  { name: "Loan Officer", slug: "loan-officer", sector: "Finance & Accounting" },
-  { name: "Insurance Agent", slug: "insurance-agent", sector: "Finance & Accounting" },
-  { name: "Actuary", slug: "actuary", sector: "Finance & Accounting" },
-  { name: "Treasury Analyst", slug: "treasury-analyst", sector: "Finance & Accounting" },
-  // Sales & Marketing
-  { name: "Sales Representative", slug: "sales-representative", sector: "Sales & Marketing" },
-  { name: "Sales Manager", slug: "sales-manager", sector: "Sales & Marketing" },
-  { name: "Account Manager", slug: "account-manager", sector: "Sales & Marketing" },
-  { name: "Business Development Manager", slug: "business-development-manager", sector: "Sales & Marketing" },
-  { name: "Marketing Manager", slug: "marketing-manager", sector: "Sales & Marketing" },
-  { name: "Marketing Executive", slug: "marketing-executive", sector: "Sales & Marketing" },
-  { name: "Digital Marketing Specialist", slug: "digital-marketing-specialist", sector: "Sales & Marketing" },
-  { name: "SEO Specialist", slug: "seo-specialist", sector: "Sales & Marketing" },
-  { name: "Social Media Manager", slug: "social-media-manager", sector: "Sales & Marketing" },
-  { name: "Content Writer", slug: "content-writer", sector: "Sales & Marketing" },
-  { name: "Copywriter", slug: "copywriter", sector: "Sales & Marketing" },
-  { name: "Brand Manager", slug: "brand-manager", sector: "Sales & Marketing" },
-  { name: "Public Relations Officer", slug: "public-relations-officer", sector: "Sales & Marketing" },
-  { name: "Market Research Analyst", slug: "market-research-analyst", sector: "Sales & Marketing" },
-  { name: "Sales Assistant", slug: "sales-assistant", sector: "Sales & Marketing" },
-  { name: "Telesales Agent", slug: "telesales-agent", sector: "Sales & Marketing" },
-  // Engineering
-  { name: "Mechanical Engineer", slug: "mechanical-engineer", sector: "Engineering" },
-  { name: "Electrical Engineer", slug: "electrical-engineer", sector: "Engineering" },
-  { name: "Civil Engineer", slug: "civil-engineer", sector: "Engineering" },
-  { name: "Structural Engineer", slug: "structural-engineer", sector: "Engineering" },
-  { name: "Chemical Engineer", slug: "chemical-engineer", sector: "Engineering" },
-  { name: "Industrial Engineer", slug: "industrial-engineer", sector: "Engineering" },
-  { name: "Process Engineer", slug: "process-engineer", sector: "Engineering" },
-  { name: "Project Engineer", slug: "project-engineer", sector: "Engineering" },
-  { name: "Maintenance Engineer", slug: "maintenance-engineer", sector: "Engineering" },
-  { name: "Automotive Engineer", slug: "automotive-engineer", sector: "Engineering" },
-  { name: "Aerospace Engineer", slug: "aerospace-engineer", sector: "Engineering" },
-  { name: "Petroleum Engineer", slug: "petroleum-engineer", sector: "Engineering" },
-  { name: "Quality Engineer", slug: "quality-engineer", sector: "Engineering" },
-  { name: "Manufacturing Engineer", slug: "manufacturing-engineer", sector: "Engineering" },
-  { name: "Site Engineer", slug: "site-engineer", sector: "Engineering" },
-  { name: "CAD Technician", slug: "cad-technician", sector: "Engineering" },
-  // Hospitality, Tourism & Food
-  { name: "Chef", slug: "chef", sector: "Hospitality, Tourism & Food" },
-  { name: "Sous Chef", slug: "sous-chef", sector: "Hospitality, Tourism & Food" },
-  { name: "Cook", slug: "cook", sector: "Hospitality, Tourism & Food" },
-  { name: "Kitchen Assistant", slug: "kitchen-assistant", sector: "Hospitality, Tourism & Food" },
-  { name: "Waiter", slug: "waiter", sector: "Hospitality, Tourism & Food", aliases: ["Waitress", "Server"] },
-  { name: "Barista", slug: "barista", sector: "Hospitality, Tourism & Food" },
-  { name: "Bartender", slug: "bartender", sector: "Hospitality, Tourism & Food" },
-  { name: "Restaurant Manager", slug: "restaurant-manager", sector: "Hospitality, Tourism & Food" },
-  { name: "Hotel Manager", slug: "hotel-manager", sector: "Hospitality, Tourism & Food" },
-  { name: "Receptionist (Hotel)", slug: "receptionist-hotel", sector: "Hospitality, Tourism & Food" },
-  { name: "Housekeeper", slug: "housekeeper", sector: "Hospitality, Tourism & Food" },
-  { name: "Concierge", slug: "concierge", sector: "Hospitality, Tourism & Food" },
-  { name: "Event Coordinator", slug: "event-coordinator", sector: "Hospitality, Tourism & Food" },
-  { name: "Travel Agent", slug: "travel-agent", sector: "Hospitality, Tourism & Food" },
-  { name: "Tour Guide", slug: "tour-guide", sector: "Hospitality, Tourism & Food" },
-  { name: "Catering Assistant", slug: "catering-assistant", sector: "Hospitality, Tourism & Food" },
-  { name: "Food & Beverage Manager", slug: "food-beverage-manager", sector: "Hospitality, Tourism & Food" },
-  // Construction & Skilled Trades
-  { name: "Electrician", slug: "electrician", sector: "Construction & Skilled Trades" },
-  { name: "Plumber", slug: "plumber", sector: "Construction & Skilled Trades" },
-  { name: "Carpenter", slug: "carpenter", sector: "Construction & Skilled Trades" },
-  { name: "Welder", slug: "welder", sector: "Construction & Skilled Trades" },
-  { name: "Painter & Decorator", slug: "painter-decorator", sector: "Construction & Skilled Trades" },
-  { name: "Bricklayer", slug: "bricklayer", sector: "Construction & Skilled Trades", aliases: ["Mason"] },
-  { name: "Construction Worker", slug: "construction-worker", sector: "Construction & Skilled Trades" },
-  { name: "Site Manager", slug: "site-manager", sector: "Construction & Skilled Trades" },
-  { name: "Quantity Surveyor", slug: "quantity-surveyor", sector: "Construction & Skilled Trades" },
-  { name: "Architect", slug: "architect", sector: "Construction & Skilled Trades" },
-  { name: "Surveyor", slug: "surveyor", sector: "Construction & Skilled Trades" },
-  { name: "HVAC Technician", slug: "hvac-technician", sector: "Construction & Skilled Trades" },
-  { name: "Heavy Equipment Operator", slug: "heavy-equipment-operator", sector: "Construction & Skilled Trades" },
-  { name: "Roofer", slug: "roofer", sector: "Construction & Skilled Trades" },
-  { name: "Plasterer", slug: "plasterer", sector: "Construction & Skilled Trades" },
-  { name: "Foreman", slug: "foreman", sector: "Construction & Skilled Trades" },
-  // Creative, Design & Media
-  { name: "Graphic Designer", slug: "graphic-designer", sector: "Creative, Design & Media" },
-  { name: "Web Designer", slug: "web-designer", sector: "Creative, Design & Media" },
-  { name: "Interior Designer", slug: "interior-designer", sector: "Creative, Design & Media" },
-  { name: "Fashion Designer", slug: "fashion-designer", sector: "Creative, Design & Media" },
-  { name: "Photographer", slug: "photographer", sector: "Creative, Design & Media" },
-  { name: "Videographer", slug: "videographer", sector: "Creative, Design & Media" },
-  { name: "Video Editor", slug: "video-editor", sector: "Creative, Design & Media" },
-  { name: "Animator", slug: "animator", sector: "Creative, Design & Media" },
-  { name: "Illustrator", slug: "illustrator", sector: "Creative, Design & Media" },
-  { name: "Art Director", slug: "art-director", sector: "Creative, Design & Media" },
-  { name: "Creative Director", slug: "creative-director", sector: "Creative, Design & Media" },
-  { name: "Journalist", slug: "journalist", sector: "Creative, Design & Media" },
-  { name: "Editor", slug: "editor", sector: "Creative, Design & Media" },
-  { name: "Producer", slug: "producer", sector: "Creative, Design & Media" },
-  { name: "Sound Engineer", slug: "sound-engineer", sector: "Creative, Design & Media" },
-  { name: "Makeup Artist", slug: "makeup-artist", sector: "Creative, Design & Media" },
-  { name: "Beauty Artist", slug: "beauty-artist", sector: "Creative, Design & Media" },
-  // Logistics, Transport & Supply Chain
-  { name: "Driver", slug: "driver", sector: "Logistics, Transport & Supply Chain" },
-  { name: "Delivery Driver", slug: "delivery-driver", sector: "Logistics, Transport & Supply Chain" },
-  { name: "Truck Driver", slug: "truck-driver", sector: "Logistics, Transport & Supply Chain" },
-  { name: "Warehouse Operative", slug: "warehouse-operative", sector: "Logistics, Transport & Supply Chain" },
-  { name: "Forklift Operator", slug: "forklift-operator", sector: "Logistics, Transport & Supply Chain" },
-  { name: "Logistics Coordinator", slug: "logistics-coordinator", sector: "Logistics, Transport & Supply Chain" },
-  { name: "Supply Chain Manager", slug: "supply-chain-manager", sector: "Logistics, Transport & Supply Chain" },
-  { name: "Procurement Officer", slug: "procurement-officer", sector: "Logistics, Transport & Supply Chain" },
-  { name: "Inventory Controller", slug: "inventory-controller", sector: "Logistics, Transport & Supply Chain" },
-  { name: "Dispatcher", slug: "dispatcher", sector: "Logistics, Transport & Supply Chain" },
-  { name: "Fleet Manager", slug: "fleet-manager", sector: "Logistics, Transport & Supply Chain" },
-  { name: "Courier", slug: "courier", sector: "Logistics, Transport & Supply Chain" },
-  { name: "Shipping Clerk", slug: "shipping-clerk", sector: "Logistics, Transport & Supply Chain" },
-  { name: "Customs Officer", slug: "customs-officer", sector: "Logistics, Transport & Supply Chain" },
-  // Customer Service & Retail
-  { name: "Customer Service Representative", slug: "customer-service-representative", sector: "Customer Service & Retail" },
-  { name: "Call Centre Agent", slug: "call-centre-agent", sector: "Customer Service & Retail" },
-  { name: "Customer Support Specialist", slug: "customer-support-specialist", sector: "Customer Service & Retail" },
-  { name: "Retail Sales Associate", slug: "retail-sales-associate", sector: "Customer Service & Retail" },
-  { name: "Cashier", slug: "cashier", sector: "Customer Service & Retail" },
-  { name: "Store Manager", slug: "store-manager", sector: "Customer Service & Retail" },
-  { name: "Shop Assistant", slug: "shop-assistant", sector: "Customer Service & Retail" },
-  { name: "Visual Merchandiser", slug: "visual-merchandiser", sector: "Customer Service & Retail" },
-  { name: "Customer Success Manager", slug: "customer-success-manager", sector: "Customer Service & Retail" },
-  { name: "Front Desk Agent", slug: "front-desk-agent", sector: "Customer Service & Retail" },
-  { name: "Stock Associate", slug: "stock-associate", sector: "Customer Service & Retail" },
-  // Beauty & Personal Care
-  { name: "Hairdresser", slug: "hairdresser", sector: "Beauty & Personal Care" },
-  { name: "Hair Stylist", slug: "hair-stylist", sector: "Beauty & Personal Care" },
-  { name: "Barber", slug: "barber", sector: "Beauty & Personal Care" },
-  { name: "Beautician", slug: "beautician", sector: "Beauty & Personal Care" },
-  { name: "Nail Technician", slug: "nail-technician", sector: "Beauty & Personal Care" },
-  { name: "Esthetician", slug: "esthetician", sector: "Beauty & Personal Care" },
-  { name: "Spa Therapist", slug: "spa-therapist", sector: "Beauty & Personal Care" },
-  { name: "Makeup Artist (Beauty)", slug: "makeup-artist-beauty", sector: "Beauty & Personal Care" },
-  { name: "Lash Technician", slug: "lash-technician", sector: "Beauty & Personal Care" },
-  { name: "Cosmetologist", slug: "cosmetologist", sector: "Beauty & Personal Care" },
-  // Human Resources
-  { name: "HR Manager", slug: "hr-manager", sector: "Human Resources" },
-  { name: "HR Assistant", slug: "hr-assistant", sector: "Human Resources" },
-  { name: "Recruiter", slug: "recruiter", sector: "Human Resources" },
-  { name: "Talent Acquisition Specialist", slug: "talent-acquisition-specialist", sector: "Human Resources" },
-  { name: "HR Business Partner", slug: "hr-business-partner", sector: "Human Resources" },
-  { name: "Training & Development Officer", slug: "training-development-officer", sector: "Human Resources" },
-  { name: "Compensation & Benefits Analyst", slug: "compensation-benefits-analyst", sector: "Human Resources" },
-  { name: "Employee Relations Officer", slug: "employee-relations-officer", sector: "Human Resources" },
-  { name: "HR Coordinator", slug: "hr-coordinator", sector: "Human Resources" },
-  // Legal
-  { name: "Lawyer", slug: "lawyer", sector: "Legal", aliases: ["Solicitor", "Attorney"] },
-  { name: "Paralegal", slug: "paralegal", sector: "Legal" },
-  { name: "Legal Assistant", slug: "legal-assistant", sector: "Legal" },
-  { name: "Legal Secretary", slug: "legal-secretary", sector: "Legal" },
-  { name: "Compliance Officer", slug: "compliance-officer", sector: "Legal" },
-  { name: "Contracts Manager", slug: "contracts-manager", sector: "Legal" },
-  { name: "Legal Counsel", slug: "legal-counsel", sector: "Legal" },
-  { name: "Notary", slug: "notary", sector: "Legal" },
-  // Science & Research
-  { name: "Research Scientist", slug: "research-scientist", sector: "Science & Research" },
-  { name: "Laboratory Technician", slug: "laboratory-technician", sector: "Science & Research" },
-  { name: "Biologist", slug: "biologist", sector: "Science & Research" },
-  { name: "Chemist", slug: "chemist", sector: "Science & Research" },
-  { name: "Research Assistant", slug: "research-assistant", sector: "Science & Research" },
-  { name: "Clinical Research Associate", slug: "clinical-research-associate", sector: "Science & Research" },
-  { name: "Environmental Scientist", slug: "environmental-scientist", sector: "Science & Research" },
-  { name: "Food Scientist", slug: "food-scientist", sector: "Science & Research" },
-  { name: "Statistician", slug: "statistician", sector: "Science & Research" },
-  // Manufacturing & Production
-  { name: "Production Operative", slug: "production-operative", sector: "Manufacturing & Production" },
-  { name: "Machine Operator", slug: "machine-operator", sector: "Manufacturing & Production" },
-  { name: "Production Manager", slug: "production-manager", sector: "Manufacturing & Production" },
-  { name: "Assembler", slug: "assembler", sector: "Manufacturing & Production" },
-  { name: "Quality Control Inspector", slug: "quality-control-inspector", sector: "Manufacturing & Production" },
-  { name: "Plant Manager", slug: "plant-manager", sector: "Manufacturing & Production" },
-  { name: "Maintenance Technician", slug: "maintenance-technician", sector: "Manufacturing & Production" },
-  { name: "Shift Supervisor", slug: "shift-supervisor", sector: "Manufacturing & Production" },
-  // Public Sector, Social & Other
-  { name: "Social Worker", slug: "social-worker", sector: "Public Sector, Social & Other" },
-  { name: "Civil Servant", slug: "civil-servant", sector: "Public Sector, Social & Other" },
-  { name: "Police Officer", slug: "police-officer", sector: "Public Sector, Social & Other" },
-  { name: "Firefighter", slug: "firefighter", sector: "Public Sector, Social & Other" },
-  { name: "Security Guard", slug: "security-guard", sector: "Public Sector, Social & Other" },
-  { name: "Cleaner", slug: "cleaner", sector: "Public Sector, Social & Other", aliases: ["Janitor"] },
-  { name: "Caretaker", slug: "caretaker", sector: "Public Sector, Social & Other" },
-  { name: "Farm Worker", slug: "farm-worker", sector: "Public Sector, Social & Other" },
-  { name: "Agricultural Technician", slug: "agricultural-technician", sector: "Public Sector, Social & Other" },
-  { name: "Charity", slug: "charity", sector: "Public Sector, Social & Other", aliases: ["NGO Worker"] },
-  { name: "Translator", slug: "translator", sector: "Public Sector, Social & Other", aliases: ["Interpreter"] },
-  // Religious — merged via almijob-v2 PR #32 (cross-product sync with
-  // AlmiSalary v2's religious-scholar base role + 8 aliases).
-  { name: "Religious Scholar", slug: "religious-scholar", sector: "Public Sector, Social & Other", aliases: ["Cleric", "Clergy"] },
-  { name: "Imam", slug: "imam", sector: "Public Sector, Social & Other", aliases: ["Mosque Imam"] },
-  { name: "Khateeb", slug: "khateeb", sector: "Public Sector, Social & Other", aliases: ["Khatib", "Friday Preacher"] },
-  { name: "Mufti", slug: "mufti", sector: "Public Sector, Social & Other" },
-  { name: "Priest", slug: "priest", sector: "Public Sector, Social & Other", aliases: ["Catholic Priest"] },
-  { name: "Pastor", slug: "pastor", sector: "Public Sector, Social & Other", aliases: ["Minister"] },
-  { name: "Rabbi", slug: "rabbi", sector: "Public Sector, Social & Other" },
-  { name: "Pandit", slug: "pandit", sector: "Public Sector, Social & Other", aliases: ["Pujari", "Hindu Priest"] },
-  { name: "Monk", slug: "monk", sector: "Public Sector, Social & Other", aliases: ["Buddhist Monk", "Bhikkhu"] },
-];
+/** Industry (kebab enum) → human-readable sector display string used by
+ *  UI copy. Values match the original AlmiWorld parent sector strings. */
+const SECTOR_LABEL: Record<Industry, string> = {
+  [Industry.Healthcare]: "Healthcare & Medical",
+  [Industry.Technology]: "Technology & IT",
+  [Industry.Finance]: "Finance & Accounting",
+  [Industry.Marketing]: "Sales & Marketing",
+  [Industry.Education]: "Education & Training",
+  [Industry.Legal]: "Legal",
+  [Industry.Engineering]: "Engineering",
+  [Industry.Trades]: "Construction & Skilled Trades",
+  [Industry.Manufacturing]: "Manufacturing & Production",
+  [Industry.Hospitality]: "Hospitality, Tourism & Food",
+  [Industry.Beauty]: "Beauty & Personal Care",
+  [Industry.ArtsMedia]: "Creative, Design & Media",
+  [Industry.Government]: "Public Sector, Social & Other",
+  [Industry.Administration]: "Business, Office & Admin",
+  [Industry.HumanResources]: "Human Resources",
+  [Industry.Retail]: "Customer Service & Retail",
+  [Industry.Science]: "Science & Research",
+  [Industry.Agriculture]: "Public Sector, Social & Other",
+  [Industry.Religious]: "Public Sector, Social & Other",
+  [Industry.Security]: "Public Sector, Social & Other",
+  [Industry.Languages]: "Public Sector, Social & Other",
+  [Industry.Automotive]: "Automotive",
+  [Industry.RealEstate]: "Real Estate",
+  [Industry.Sports]: "Sports & Athletics",
+  [Industry.Executive]: "Executive Leadership",
+};
 
-/**
- * The 11 base roles — those that own salary data in AlmiSalary v2.
- * All other 252 entries in JOB_ROLES are aliases mapping to one of these.
- */
+/** Per-slug name override (mirrors AlmiJob: package's "Makeup Artist (Beauty)"
+ *  → AlmiWorld parent's plain "Makeup Artist"). */
+const NAME_OVERRIDES: Record<string, string> = {
+  "makeup-artist-beauty": "Makeup Artist",
+};
+
+/** Per-slug sector override — preserves the original 18-sector taxonomy
+ *  where the package's 25-industry enum collapses several into Trades.
+ *  Mirrors the AlmiJob fix: 14 logistics roles stay under their own sector
+ *  so any UI grouping by sector keeps the AlmiWorld visual taxonomy. */
+const SECTOR_OVERRIDES: Record<string, string> = {
+  driver: "Logistics, Transport & Supply Chain",
+  "delivery-driver": "Logistics, Transport & Supply Chain",
+  "truck-driver": "Logistics, Transport & Supply Chain",
+  "warehouse-operative": "Logistics, Transport & Supply Chain",
+  "forklift-operator": "Logistics, Transport & Supply Chain",
+  "logistics-coordinator": "Logistics, Transport & Supply Chain",
+  "supply-chain-manager": "Logistics, Transport & Supply Chain",
+  "procurement-officer": "Logistics, Transport & Supply Chain",
+  "inventory-controller": "Logistics, Transport & Supply Chain",
+  dispatcher: "Logistics, Transport & Supply Chain",
+  "fleet-manager": "Logistics, Transport & Supply Chain",
+  courier: "Logistics, Transport & Supply Chain",
+  "shipping-clerk": "Logistics, Transport & Supply Chain",
+  "customs-officer": "Logistics, Transport & Supply Chain",
+};
+
+/** The 263 slugs in the original AlmiWorld parent JOB_ROLES — bounded
+ *  allowlist controls which package roles surface in the country×role
+ *  grid (the 50,759-URL sitemap surface). Adding to this expands the
+ *  country×role grid; Phase 6 will reconsider.
+ *
+ *  This list was generated 2026-05-28 from the pre-integration roles.ts. */
+const ALMIWORLD_BOUNDED_SLUGS: ReadonlySet<string> = new Set([
+  "software-engineer", "software-developer", "web-developer", "frontend-developer", "backend-developer", "full-stack-developer",
+  "mobile-app-developer", "devops-engineer", "data-analyst", "data-scientist", "data-engineer", "machine-learning-engineer",
+  "it-support-technician", "help-desk-technician", "system-administrator", "network-engineer", "cloud-engineer", "cybersecurity-analyst",
+  "qa", "database-administrator", "it-project-manager", "product-manager", "ux-designer", "ui-designer",
+  "scrum-master", "registered-nurse", "nurse-practitioner", "doctor", "medical-assistant", "caregiver",
+  "healthcare-assistant", "pharmacist", "pharmacy-technician", "dental-assistant", "dentist", "physiotherapist",
+  "occupational-therapist", "radiographer", "lab-technician", "phlebotomist", "midwife", "paramedic",
+  "medical-receptionist", "home-health-aide", "optician", "massage-therapist", "teacher", "primary-school-teacher",
+  "secondary-school-teacher", "teaching-assistant", "lecturer", "tutor", "esl", "special-education-teacher",
+  "school-counsellor", "academic-advisor", "trainer", "instructional-designer", "education-coordinator", "librarian",
+  "childcare-worker", "nursery-assistant", "administrative-assistant", "office-manager", "executive-assistant", "personal-assistant",
+  "receptionist", "office-administrator", "data-entry-clerk", "secretary", "operations-manager", "project-manager",
+  "business-analyst", "management-consultant", "project-coordinator", "office-clerk", "virtual-assistant", "accountant",
+  "accounts-assistant", "bookkeeper", "financial-analyst", "auditor", "tax-advisor", "payroll-officer",
+  "credit-controller", "financial-controller", "investment-analyst", "bank-teller", "loan-officer", "insurance-agent",
+  "actuary", "treasury-analyst", "sales-representative", "sales-manager", "account-manager", "business-development-manager",
+  "marketing-manager", "marketing-executive", "digital-marketing-specialist", "seo-specialist", "social-media-manager", "content-writer",
+  "copywriter", "brand-manager", "public-relations-officer", "market-research-analyst", "sales-assistant", "telesales-agent",
+  "mechanical-engineer", "electrical-engineer", "civil-engineer", "structural-engineer", "chemical-engineer", "industrial-engineer",
+  "process-engineer", "project-engineer", "maintenance-engineer", "automotive-engineer", "aerospace-engineer", "petroleum-engineer",
+  "quality-engineer", "manufacturing-engineer", "site-engineer", "cad-technician", "chef", "sous-chef",
+  "cook", "kitchen-assistant", "waiter", "barista", "bartender", "restaurant-manager",
+  "hotel-manager", "receptionist-hotel", "housekeeper", "concierge", "event-coordinator", "travel-agent",
+  "tour-guide", "catering-assistant", "food-beverage-manager", "electrician", "plumber", "carpenter",
+  "welder", "painter-decorator", "bricklayer", "construction-worker", "site-manager", "quantity-surveyor",
+  "architect", "surveyor", "hvac-technician", "heavy-equipment-operator", "roofer", "plasterer",
+  "foreman", "graphic-designer", "web-designer", "interior-designer", "fashion-designer", "photographer",
+  "videographer", "video-editor", "animator", "illustrator", "art-director", "creative-director",
+  "journalist", "editor", "producer", "sound-engineer", "makeup-artist", "beauty-artist",
+  "driver", "delivery-driver", "truck-driver", "warehouse-operative", "forklift-operator", "logistics-coordinator",
+  "supply-chain-manager", "procurement-officer", "inventory-controller", "dispatcher", "fleet-manager", "courier",
+  "shipping-clerk", "customs-officer", "customer-service-representative", "call-centre-agent", "customer-support-specialist", "retail-sales-associate",
+  "cashier", "store-manager", "shop-assistant", "visual-merchandiser", "customer-success-manager", "front-desk-agent",
+  "stock-associate", "hairdresser", "hair-stylist", "barber", "beautician", "nail-technician",
+  "esthetician", "spa-therapist", "makeup-artist-beauty", "lash-technician", "cosmetologist", "hr-manager",
+  "hr-assistant", "recruiter", "talent-acquisition-specialist", "hr-business-partner", "training-development-officer", "compensation-benefits-analyst",
+  "employee-relations-officer", "hr-coordinator", "lawyer", "paralegal", "legal-assistant", "legal-secretary",
+  "compliance-officer", "contracts-manager", "legal-counsel", "notary", "research-scientist", "laboratory-technician",
+  "biologist", "chemist", "research-assistant", "clinical-research-associate", "environmental-scientist", "food-scientist",
+  "statistician", "production-operative", "machine-operator", "production-manager", "assembler", "quality-control-inspector",
+  "plant-manager", "maintenance-technician", "shift-supervisor", "social-worker", "civil-servant", "police-officer",
+  "firefighter", "security-guard", "cleaner", "caretaker", "farm-worker", "agricultural-technician",
+  "charity", "translator", "religious-scholar", "imam", "khateeb", "mufti",
+  "priest", "pastor", "rabbi", "pandit", "monk",
+]);
+
+function toLocalRole(r: PkgJobRole): Role {
+  const local: Role = {
+    name: NAME_OVERRIDES[r.slug] ?? r.name,
+    slug: r.slug,
+    sector: SECTOR_OVERRIDES[r.slug] ?? SECTOR_LABEL[r.industry],
+  };
+  if (r.aliases && r.aliases.length > 0) local.aliases = r.aliases;
+  return local;
+}
+
+/** ALL 519 package roles, used by the new /[role-slug] hub pages. */
+export const ALL_ROLES: readonly Role[] = pkgGetAllRoles().map(toLocalRole);
+
+/** O(1) "is this slug a package role?" lookup for /[slug] dispatcher. */
+export const PACKAGE_ROLE_SLUGS: ReadonlySet<string> = new Set(
+  ALL_ROLES.map((r) => r.slug),
+);
+
+/** Bounded 263 — same set as before integration. Used by the existing
+ *  /[country]/[role] grid so the 50,759-URL sitemap surface doesn't grow. */
+export const JOB_ROLES: readonly Role[] = ALL_ROLES.filter((r) =>
+  ALMIWORLD_BOUNDED_SLUGS.has(r.slug),
+);
+
+// Build-time guard: every expected bounded slug must still resolve.
+{
+  const found = new Set(JOB_ROLES.map((r) => r.slug));
+  const missing: string[] = [];
+  for (const s of ALMIWORLD_BOUNDED_SLUGS) {
+    if (!found.has(s)) missing.push(s);
+  }
+  if (missing.length > 0) {
+    throw new Error(
+      `[roles] ${missing.length} AlmiWorld bounded slugs missing from @smnasiruz016-blip/job-roles: ` +
+        missing.join(", "),
+    );
+  }
+}
+
+/** 11 base roles — drives "featured roles" on country hubs. Unchanged. */
 export const BASE_ROLES: readonly string[] = [
   "registered-nurse",
   "software-engineer",
@@ -326,11 +209,11 @@ export const BASE_ROLES: readonly string[] = [
   "religious-scholar",
 ];
 
-export const JOB_ROLES_BY_SLUG: Map<string, Role> = new Map(
+export const JOB_ROLES_BY_SLUG: ReadonlyMap<string, Role> = new Map(
   JOB_ROLES.map((r) => [r.slug, r]),
 );
 
-export const JOB_ROLES_BY_SECTOR: Map<string, Role[]> = (() => {
+export const JOB_ROLES_BY_SECTOR: ReadonlyMap<string, Role[]> = (() => {
   const m = new Map<string, Role[]>();
   for (const r of JOB_ROLES) {
     const arr = m.get(r.sector) ?? [];
@@ -340,6 +223,14 @@ export const JOB_ROLES_BY_SECTOR: Map<string, Role[]> = (() => {
   return m;
 })();
 
+/** Lookup by primary slug OR alias-derived slug. Searches the full 519
+ *  (so e.g. /surgeon resolves to the package's Surgeon entry), then wraps
+ *  in the AlmiWorld Role shape. */
 export function getRoleBySlug(slug: string): Role | undefined {
-  return JOB_ROLES_BY_SLUG.get(slug);
+  const r = pkgGetRoleBySlug(slug);
+  return r ? toLocalRole(r) : undefined;
 }
+
+// Re-export Industry enum for the role hub's "related roles" sibling lookup
+// (uses Industry directly instead of sector display string for stability).
+export { Industry };
