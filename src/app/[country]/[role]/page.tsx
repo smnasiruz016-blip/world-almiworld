@@ -18,6 +18,7 @@ export async function generateMetadata({
   return {
     title: `${r.name} in ${c.name} — AlmiWorld`,
     description: `Jobs, salary ranges, CV guidance, and universities for ${r.name} in ${c.name}. The four AlmiWorld products, one page.`,
+    alternates: { canonical: `https://world.almiworld.com/${c.slug}/${r.slug}` },
   };
 }
 
