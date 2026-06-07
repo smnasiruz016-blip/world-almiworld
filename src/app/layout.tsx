@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   description:
     "AlmiWorld is the hub for AlmiCV, AlmiJob, AlmiSalary, and AlmiStudy. Pick a country and a role; we link you to the right product.",
   metadataBase: new URL("https://world.almiworld.com"),
+  // Self-canonical fallback for pages without their own (e.g. the homepage).
+  // Every programmatic page overrides this with its own absolute canonical.
+  alternates: { canonical: "https://world.almiworld.com" },
 };
 
 export default function RootLayout({
