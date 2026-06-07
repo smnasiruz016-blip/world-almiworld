@@ -18,7 +18,12 @@ export async function generateMetadata({
   return {
     title: `${r.name} in ${c.name} — AlmiWorld`,
     description: `Jobs, salary ranges, CV guidance, and universities for ${r.name} in ${c.name}. The four AlmiWorld products, one page.`,
-    alternates: { canonical: `https://world.almiworld.com/${c.slug}/${r.slug}` },
+    // SEO consolidation: this role×country page is a thin cross-link doorway
+    // (4 product links, no unique data) over the richer /[country] hub. It
+    // canonicalises up to the country hub and is kept out of the sitemap, so
+    // crawl budget concentrates on the country + role hub pages. The page
+    // still renders for users and keeps all its cross-product links.
+    alternates: { canonical: `https://world.almiworld.com/${c.slug}` },
   };
 }
 
