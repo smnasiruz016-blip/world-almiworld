@@ -68,6 +68,10 @@ export async function generateMetadata({
   return {
     title: `Build your career in ${c.name} — AlmiWorld`,
     description: `Jobs, salaries, universities, and CV guidance for ${c.name}, linked across the four AlmiWorld products.`,
+    // Self-canonical so the country hub is the consolidation target for its
+    // [country]/[role] grid pages (which canonicalise up to here). Without
+    // this it would inherit the layout fallback (the homepage).
+    alternates: { canonical: `https://world.almiworld.com/${c.slug}` },
   };
 }
 

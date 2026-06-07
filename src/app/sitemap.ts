@@ -1,59 +1,34 @@
 /**
- * Chunked sitemap — async-id pattern from day one.
+ * Chunked sitemap route — kept at /sitemap/[id].xml, fronted by the manual
+ * /sitemap-index.xml handler (robots.ts points there; /sitemap.xml is
+ * reserved/conflicting per almijob-v2/docs/SITEMAP_CHUNKING_FUTURE.md).
  *
- * Scale: home + 193 country hubs + 519 role hubs + 193 × 263 = 50,759
- * country×role pages = 51,472 URLs. Past Google's 50,000-URL-per-sitemap
- * cap, so chunking is required from launch (not optional).
+ * Canonical surface now = home + 193 country hubs + 519 role hubs = ~713
+ * URLs, which fits in a single chunk (chunk 0). The country×role grid
+ * (/[country]/[role], ~50,759 URLs) is DELIBERATELY excluded: those pages
+ * are thin cross-link doorways that canonicalise up to their /[country] hub
+ * (see app/[country]/[role]/page.tsx), so they are not canonical URLs and
+ * listing them would dilute crawl budget. The pages still render for users.
  *
- * Layout:
- *   - Chunk 0  = home + 193 country hubs + 519 role hubs (713 URLs)
- *   - Chunks 1..N = country×role grid, sliced at CHUNK URLs each
- *     (50,759 ÷ 25,000 = 3 chunks at current scale → 4 sitemaps total)
+ * The chunked routing (generateSitemaps + async id) is retained so the
+ * sitemap URL shape and GSC submission stay unchanged, and so re-adding a
+ * large canonical surface later is a one-line change. If that surface ever
+ * crosses ~25k, raise CHUNK / restore the grid builder from git history.
  *
- * Reference: docs/SITEMAP_CHUNKING_FUTURE.md in almijob-v2 — explains
- * the Next 16 async-id bug that ate 4 AlmiJob PRs. The fix is:
- *   • `id: Promise<string>` (NOT string)
- *   • `await id` before Number(...) coercion
- *   • return type `Promise<MetadataRoute.Sitemap>`
- *
- * Test discipline: NEVER smoke-test sitemap chunks via `npx tsx` — the
- * Promise wrapping only happens through Next's loader at runtime. Use
- * `npm run build && npx next start && curl /sitemap/N.xml`.
+ * Test discipline: NEVER smoke-test via `npx tsx` — the Promise wrapping of
+ * `id` only happens through Next's loader at runtime. Use
+ * `npm run build && npx next start && curl /sitemap/0.xml`.
  */
 
 import type { MetadataRoute } from "next";
 import { COUNTRIES_SERVED } from "@/lib/countries";
-import { JOB_ROLES, ALL_ROLES } from "@/lib/roles";
+import { ALL_ROLES } from "@/lib/roles";
 
 const SITE_ORIGIN = "https://world.almiworld.com";
-const CHUNK = 25000;
-
-const TOTAL_ROLE_URLS = COUNTRIES_SERVED.length * JOB_ROLES.length;
-const NUM_ROLE_CHUNKS = Math.ceil(TOTAL_ROLE_URLS / CHUNK);
-
-let _allRoleUrlsCache: MetadataRoute.Sitemap | null = null;
-
-function buildAllRoleUrls(): MetadataRoute.Sitemap {
-  if (_allRoleUrlsCache) return _allRoleUrlsCache;
-  const lastModified = new Date();
-  const out: MetadataRoute.Sitemap = [];
-  for (const c of COUNTRIES_SERVED) {
-    for (const r of JOB_ROLES) {
-      out.push({
-        url: `${SITE_ORIGIN}/${c.slug}/${r.slug}`,
-        lastModified,
-        changeFrequency: "monthly",
-        priority: 0.6,
-      });
-    }
-  }
-  _allRoleUrlsCache = out;
-  return out;
-}
 
 export async function generateSitemaps() {
-  // Chunk 0 = home + 193 country hubs. Chunks 1..NUM_ROLE_CHUNKS = role grid.
-  return Array.from({ length: 1 + NUM_ROLE_CHUNKS }, (_, i) => ({ id: i }));
+  // Single chunk — the canonical surface (~713 URLs) fits well within one.
+  return [{ id: 0 }];
 }
 
 export default async function sitemap({
@@ -63,36 +38,31 @@ export default async function sitemap({
   // This is the bug documented in almijob-v2/docs/SITEMAP_CHUNKING_FUTURE.md.
   id: Promise<string>;
 }): Promise<MetadataRoute.Sitemap> {
-  const n = Number(await id);
+  // Only chunk 0 is generated; any other id yields an empty sitemap.
+  if (Number(await id) !== 0) return [];
+
   const lastModified = new Date();
+  const home: MetadataRoute.Sitemap[number] = {
+    url: `${SITE_ORIGIN}/`,
+    lastModified,
+    changeFrequency: "weekly",
+    priority: 1.0,
+  };
+  const countryHubs: MetadataRoute.Sitemap = COUNTRIES_SERVED.map((c) => ({
+    url: `${SITE_ORIGIN}/${c.slug}`,
+    lastModified,
+    changeFrequency: "weekly",
+    priority: 0.8,
+  }));
+  // 519 role-hub gateway pages from the shared package. Same URL shape as
+  // country hubs (`/[slug]`) — the [country]/page.tsx dispatcher routes by
+  // data lookup. Zero collisions with country slugs verified at integration.
+  const roleHubs: MetadataRoute.Sitemap = ALL_ROLES.map((r) => ({
+    url: `${SITE_ORIGIN}/${r.slug}`,
+    lastModified,
+    changeFrequency: "weekly",
+    priority: 0.75,
+  }));
 
-  if (n === 0) {
-    const home: MetadataRoute.Sitemap[number] = {
-      url: `${SITE_ORIGIN}/`,
-      lastModified,
-      changeFrequency: "weekly",
-      priority: 1.0,
-    };
-    const countryHubs: MetadataRoute.Sitemap = COUNTRIES_SERVED.map((c) => ({
-      url: `${SITE_ORIGIN}/${c.slug}`,
-      lastModified,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    }));
-    // New for Phase 5: 519 role-hub gateway pages from the shared package.
-    // These live at the same URL shape as country hubs (`/[slug]`) — the
-    // [country]/page.tsx dispatcher routes by data lookup. Zero collisions
-    // with country slugs verified during integration.
-    const roleHubs: MetadataRoute.Sitemap = ALL_ROLES.map((r) => ({
-      url: `${SITE_ORIGIN}/${r.slug}`,
-      lastModified,
-      changeFrequency: "weekly",
-      priority: 0.75,
-    }));
-    return [home, ...countryHubs, ...roleHubs];
-  }
-
-  const all = buildAllRoleUrls();
-  const start = (n - 1) * CHUNK;
-  return all.slice(start, start + CHUNK);
+  return [home, ...countryHubs, ...roleHubs];
 }
