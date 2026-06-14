@@ -1,6 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { COUNTRIES_SERVED } from "@/lib/countries";
-import { PRODUCTS } from "@/lib/products";
+
+// Layout sets a plain `title` (no template) so this fully replaces it — no
+// double-brand.
+const TITLE = "Study, Work & Move Abroad — One Honest Platform | AlmiWorld";
+const DESC =
+  "Find universities, pass IELTS & PTE, search jobs worldwide, build an ATS-ready CV, and check real salaries — all in one honest platform. Most of it free. Built for people doing it alone, from anywhere.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESC,
+  openGraph: { title: TITLE, description: DESC, type: "website" },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESC },
+};
 
 const TOP_PICKS = [
   "united-states",
@@ -11,44 +24,167 @@ const TOP_PICKS = [
   "pakistan",
 ];
 
+const TRUST = [
+  "One platform for the whole path",
+  "Honest & verified — no agent sales pitch",
+  "Most tools completely free",
+  "Built in the open, for everyone",
+];
+
+// The path abroad — each step is a product. Number-free coverage claims (this
+// hub doesn't import the per-product data, so we avoid figures that could drift
+// or overstate).
+const STEPS = [
+  {
+    n: 1,
+    title: "Find your university",
+    body: "Search verified universities worldwide. Free.",
+    links: [{ name: "AlmiStudy", href: "https://almistudy.almiworld.com" }],
+  },
+  {
+    n: 2,
+    title: "Pass your English test",
+    body: "Honest AI band scores for IELTS, plus PTE practice. Know your real level before test day.",
+    links: [
+      { name: "AlmiPrep", href: "https://almiprep.almiworld.com" },
+      { name: "AlmiPTE", href: "https://almipte.almiworld.com" },
+    ],
+  },
+  {
+    n: 3,
+    title: "Build a CV that wins",
+    body: "Beat the ATS filter with a real score and AI writing that keeps your voice.",
+    links: [{ name: "AlmiCV", href: "https://almicv.almiworld.com" }],
+  },
+  {
+    n: 4,
+    title: "Find the right job",
+    body: "Upload your CV, get curated job sources worldwide — your CV never stored.",
+    links: [{ name: "AlmiJob", href: "https://almijob.almiworld.com" }],
+  },
+  {
+    n: 5,
+    title: "Know your worth",
+    body: "Real salary ranges, including what the same job pays abroad.",
+    links: [{ name: "AlmiSalary", href: "https://almisalary.almiworld.com" }],
+  },
+];
+
+const WHY = [
+  {
+    title: "Honest by design",
+    body: "We verify, we don't hype. No paid placements, no fake promises, no agent commissions.",
+  },
+  {
+    title: "Most of it is free",
+    body: "The tools people pay agents thousands for — universities, salaries, job sources — are free here.",
+  },
+  {
+    title: "One path, one place",
+    body: "Every step connects. Find the university, pass the test, build the CV, get the job, know your pay.",
+  },
+  {
+    title: "Built for everyone, everywhere",
+    body: "Multilingual, worldwide, made for the person doing this alone — from any country.",
+  },
+];
+
+const CTA_CLASS =
+  "inline-flex min-h-[44px] items-center justify-center rounded-md bg-neutral-900 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-neutral-700";
+
 export default function HomePage() {
   const picks = TOP_PICKS.map((slug) =>
     COUNTRIES_SERVED.find((c) => c.slug === slug),
   ).filter((c): c is NonNullable<typeof c> => Boolean(c));
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16 space-y-14">
-      <header className="space-y-4">
-        <h1 className="text-4xl font-semibold tracking-tight">
-          Your career, around the globe — powered by AI.
+    <main className="mx-auto max-w-3xl px-6 py-16 space-y-16">
+      {/* HERO */}
+      <header className="space-y-5 text-center">
+        <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
+          Everything you need to study, work, and build a life abroad — in one
+          place.
         </h1>
-        <p className="text-lg text-neutral-600">
-          AlmiWorld is one place for the four tools you need to work, study,
-          and apply abroad. Pick a country, pick a role, and we&apos;ll send
-          you to the right product.
+        <p className="mx-auto max-w-2xl text-lg text-neutral-600">
+          Going abroad is the biggest move most people make — and almost everyone
+          does it half-blind, paying agents thousands. AlmiWorld is the honest
+          alternative: find your university, pass your English test, search jobs
+          worldwide, build a CV that wins, and know your real salary. Most of it
+          is free.
+        </p>
+        <div className="flex justify-center pt-2">
+          <a href="#path" className={CTA_CLASS}>Get started — free</a>
+        </div>
+        <p className="text-sm text-neutral-500">
+          One platform. The whole path. Built for people doing it alone, from
+          anywhere in the world.
         </p>
       </header>
 
+      {/* TRUST BAR */}
+      <ul className="grid grid-cols-1 gap-x-6 gap-y-3 rounded-lg bg-neutral-50 p-5 sm:grid-cols-2">
+        {TRUST.map((t) => (
+          <li key={t} className="flex items-start gap-2 text-sm text-neutral-700">
+            <span aria-hidden className="font-bold text-neutral-900">✓</span>
+            <span>{t}</span>
+          </li>
+        ))}
+      </ul>
+
+      {/* PROBLEM (PAS) */}
       <section className="space-y-4">
-        <h2 className="text-xl font-medium">The four products</h2>
-        <ul className="grid gap-3 sm:grid-cols-2">
-          {PRODUCTS.map((p) => (
-            <li
-              key={p.key}
-              className="rounded-lg border border-neutral-200 p-5 hover:border-neutral-300"
-            >
-              <a
-                href={p.origin}
-                className="text-base font-semibold text-neutral-900 underline-offset-2 hover:underline"
-              >
-                {p.name}
-              </a>
-              <p className="mt-1 text-sm text-neutral-600">{p.tagline}</p>
-            </li>
-          ))}
-        </ul>
+        <h2 className="text-balance text-2xl font-semibold leading-tight sm:text-3xl">
+          Going abroad shouldn&apos;t mean guessing — or paying an agent thousands
+          to guess for you.
+        </h2>
+        <p className="text-neutral-600">
+          Which university will actually accept you? Can you pass IELTS or PTE?
+          Which country&apos;s doors are even open to you? Why does your CV get
+          ignored? Are you being underpaid?
+        </p>
+        <p className="text-neutral-600">
+          Every one of these questions sends people to expensive agents, scattered
+          websites, and forum guesses — and they still get it wrong, alone.
+        </p>
+        <p className="text-neutral-600">
+          AlmiWorld puts the entire path in one honest place. No commissions, no
+          hype, no one steering you toward what pays them. Just the tools and the
+          truth, so you can do this yourself — and do it right.
+        </p>
       </section>
 
+      {/* THE PATH — ecosystem as one path, each step a product */}
+      <section id="path" className="space-y-5 scroll-mt-8">
+        <h2 className="text-xl font-medium">Your path abroad, step by step</h2>
+        <ol className="space-y-3">
+          {STEPS.map((s) => (
+            <li
+              key={s.n}
+              className="flex gap-4 rounded-lg border border-neutral-200 p-5"
+            >
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-sm font-semibold text-white">
+                {s.n}
+              </span>
+              <div className="space-y-1">
+                <h3 className="font-semibold text-neutral-900">{s.title}</h3>
+                <p className="text-sm text-neutral-600">{s.body}</p>
+                <p className="flex flex-wrap gap-x-3 pt-1 text-sm font-medium">
+                  {s.links.map((l) => (
+                    <a key={l.name} href={l.href} className="text-neutral-900 underline-offset-2 hover:underline">
+                      {l.name} →
+                    </a>
+                  ))}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <p className="text-sm text-neutral-500">
+          Plus ebooks and more — free and low-cost — with new tools always coming.
+        </p>
+      </section>
+
+      {/* START WITH A COUNTRY — functional routing (kept) */}
       <section className="space-y-4">
         <h2 className="text-xl font-medium">Start with a country</h2>
         <ul className="grid gap-2 sm:grid-cols-3">
@@ -66,6 +202,38 @@ export default function HomePage() {
         <p className="text-sm text-neutral-500">
           {COUNTRIES_SERVED.length} countries covered in total.
         </p>
+      </section>
+
+      {/* WHY ALMIWORLD */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-medium">Why AlmiWorld</h2>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {WHY.map((w) => (
+            <div key={w.title} className="rounded-lg border border-neutral-200 p-5">
+              <h3 className="font-semibold text-neutral-900">{w.title}</h3>
+              <p className="mt-1 text-sm text-neutral-600">{w.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="space-y-5 rounded-xl bg-neutral-900 p-10 text-center text-white">
+        <h2 className="text-balance text-2xl font-semibold sm:text-3xl">
+          Your path abroad starts with one honest step.
+        </h2>
+        <p className="mx-auto max-w-2xl text-neutral-300">
+          Find your university. Pass your test. Build your CV. Know your worth.
+          Most of it free.
+        </p>
+        <div className="flex justify-center">
+          <a
+            href="#path"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-white px-6 py-3 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-200"
+          >
+            Get started — free
+          </a>
+        </div>
       </section>
     </main>
   );
