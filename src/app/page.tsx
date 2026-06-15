@@ -6,7 +6,7 @@ import { COUNTRIES_SERVED } from "@/lib/countries";
 // double-brand.
 const TITLE = "Study, Work & Move Abroad — One Honest Platform | AlmiWorld";
 const DESC =
-  "Find universities, pass IELTS & PTE, search jobs worldwide, build an ATS-ready CV, and check real salaries — all in one honest platform. Most of it free. Built for people doing it alone, from anywhere.";
+  "Everything to study, work & move abroad: find universities, pass IELTS/PTE, build a winning CV, search jobs, check real salaries. One platform, most free.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -25,20 +25,22 @@ const TOP_PICKS = [
 ];
 
 const TRUST = [
-  "One platform for the whole path",
-  "Honest & verified — no agent sales pitch",
+  "One platform to study, work & move abroad",
+  "Honest & verified — no agent commissions",
   "Most tools completely free",
-  "Built in the open, for everyone",
+  "Built for everyone, everywhere",
 ];
 
-// The path abroad — each step is a product. Number-free coverage claims (this
-// hub doesn't import the per-product data, so we avoid figures that could drift
-// or overstate).
+// The path abroad — each step is a product linking to its own domain.
+// Coverage figures: "500+" is a safe floor (AlmiSalary has 519). The 3,197
+// universities figure is AlmiStudy's current verified count; this hub can't
+// live-read it, so it's a conservative floor (Study only grows) — review if
+// AlmiStudy's count is ever reduced.
 const STEPS = [
   {
     n: 1,
     title: "Find your university",
-    body: "Search verified universities worldwide. Free.",
+    body: "Search 3,197 verified universities abroad. Free.",
     links: [{ name: "AlmiStudy", href: "https://almistudy.almiworld.com" }],
   },
   {
@@ -53,19 +55,19 @@ const STEPS = [
   {
     n: 3,
     title: "Build a CV that wins",
-    body: "Beat the ATS filter with a real score and AI writing that keeps your voice.",
+    body: "Beat the ATS filter with a real resume score and AI that keeps your voice.",
     links: [{ name: "AlmiCV", href: "https://almicv.almiworld.com" }],
   },
   {
     n: 4,
     title: "Find the right job",
-    body: "Upload your CV, get curated job sources worldwide — your CV never stored.",
+    body: "Upload your CV, find jobs worldwide — your CV never stored.",
     links: [{ name: "AlmiJob", href: "https://almijob.almiworld.com" }],
   },
   {
     n: 5,
     title: "Know your worth",
-    body: "Real salary ranges, including what the same job pays abroad.",
+    body: "Real salary ranges for 500+ roles, including what the same job pays abroad.",
     links: [{ name: "AlmiSalary", href: "https://almisalary.almiworld.com" }],
   },
 ];
@@ -81,11 +83,30 @@ const WHY = [
   },
   {
     title: "One path, one place",
-    body: "Every step connects. Find the university, pass the test, build the CV, get the job, know your pay.",
+    body: "Every step connects: find the university, pass the test, build the CV, get the job, know your pay.",
   },
   {
     title: "Built for everyone, everywhere",
     body: "Multilingual, worldwide, made for the person doing this alone — from any country.",
+  },
+];
+
+const FAQS = [
+  {
+    q: "How can I study abroad without an agent?",
+    a: "AlmiWorld gives you the verified tools directly — find universities, pass IELTS/PTE, build your CV — so you can do it yourself, most of it free.",
+  },
+  {
+    q: "What do I need to move abroad?",
+    a: "Usually a university or job offer, an English test score, and a strong CV. AlmiWorld covers each step in one place.",
+  },
+  {
+    q: "Is AlmiWorld really free?",
+    a: "Most of it is — universities, salaries, and job tools are free. AlmiCV ($7/mo) and AlmiPrep ($12/mo) are the paid steps.",
+  },
+  {
+    q: "Which English test should I take — IELTS or PTE?",
+    a: "Both are widely accepted; AlmiWorld lets you practise honestly for each before you decide.",
   },
 ];
 
@@ -101,23 +122,25 @@ export default function HomePage() {
     <main className="mx-auto max-w-3xl px-6 py-16 space-y-16">
       {/* HERO */}
       <header className="space-y-5 text-center">
-        <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-          Everything you need to study, work, and build a life abroad — in one
-          place.
+        <h1 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+          Everything You Need to Study, Work &amp; Move Abroad
         </h1>
+        <p className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
+          One honest platform for the whole path — most of it free.
+        </p>
         <p className="mx-auto max-w-2xl text-lg text-neutral-600">
-          Going abroad is the biggest move most people make — and almost everyone
-          does it half-blind, paying agents thousands. AlmiWorld is the honest
-          alternative: find your university, pass your English test, search jobs
-          worldwide, build a CV that wins, and know your real salary. Most of it
-          is free.
+          Going abroad is the biggest move most people ever make — and almost
+          everyone does it half-blind, handing thousands to agents who guess on
+          their behalf. AlmiWorld is the honest alternative: find your
+          university, pass your IELTS or PTE, build a CV that wins, search jobs
+          worldwide, and know your real salary. One platform. Most of it free.
         </p>
         <div className="flex justify-center pt-2">
-          <a href="#path" className={CTA_CLASS}>Get started — free</a>
+          <a href="#path" className={CTA_CLASS}>Start your path — free</a>
         </div>
         <p className="text-sm text-neutral-500">
-          One platform. The whole path. Built for people doing it alone, from
-          anywhere in the world.
+          One platform. The whole path abroad. Built for people doing it alone,
+          from anywhere in the world.
         </p>
       </header>
 
@@ -139,17 +162,16 @@ export default function HomePage() {
         </h2>
         <p className="text-neutral-600">
           Which university will actually accept you? Can you pass IELTS or PTE?
-          Which country&apos;s doors are even open to you? Why does your CV get
-          ignored? Are you being underpaid?
-        </p>
-        <p className="text-neutral-600">
-          Every one of these questions sends people to expensive agents, scattered
-          websites, and forum guesses — and they still get it wrong, alone.
+          Why does your CV keep getting ignored? Where are the real jobs? Are you
+          being underpaid? Every one of these questions sends people to expensive
+          agents, scattered websites, and strangers on forums — and they still
+          get it wrong, alone, after paying thousands for the privilege.
         </p>
         <p className="text-neutral-600">
           AlmiWorld puts the entire path in one honest place. No commissions, no
           hype, no one steering you toward what pays them. Just the tools and the
-          truth, so you can do this yourself — and do it right.
+          truth — so you can do this yourself, and do it right, without being
+          charged thousands for guesswork.
         </p>
       </section>
 
@@ -217,6 +239,19 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* FAQ — search-query shaped questions (SEO) */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-medium">Questions, answered</h2>
+        <div className="space-y-3">
+          {FAQS.map((f) => (
+            <div key={f.q} className="rounded-lg border border-neutral-200 p-5">
+              <h3 className="font-semibold text-neutral-900">{f.q}</h3>
+              <p className="mt-1 text-sm text-neutral-600">{f.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* FINAL CTA */}
       <section className="space-y-5 rounded-xl bg-neutral-900 p-10 text-center text-white">
         <h2 className="text-balance text-2xl font-semibold sm:text-3xl">
@@ -231,7 +266,7 @@ export default function HomePage() {
             href="#path"
             className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-white px-6 py-3 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-200"
           >
-            Get started — free
+            Start your path — free
           </a>
         </div>
       </section>
