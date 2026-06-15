@@ -32,15 +32,14 @@ const TRUST = [
 ];
 
 // The path abroad — each step is a product linking to its own domain.
-// Coverage figures: "500+" is a safe floor (AlmiSalary has 519). The 3,197
-// universities figure is AlmiStudy's current verified count; this hub can't
-// live-read it, so it's a conservative floor (Study only grows) — review if
-// AlmiStudy's count is ever reduced.
+// Coverage figures are deliberately soft floors ("500+", "3,000+") so they
+// stay true without this hub live-reading per-product data (AlmiSalary has
+// 519 roles; AlmiStudy has 3,197 verified universities and only grows).
 const STEPS = [
   {
     n: 1,
     title: "Find your university",
-    body: "Search 3,197 verified universities abroad. Free.",
+    body: "Search 3,000+ verified universities abroad. Free.",
     links: [{ name: "AlmiStudy", href: "https://almistudy.almiworld.com" }],
   },
   {
