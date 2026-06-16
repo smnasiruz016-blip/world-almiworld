@@ -1,5 +1,5 @@
 /**
- * The 4 AlmiWorld sister products. URL builders here are the only
+ * The 6 AlmiWorld sister products. URL builders here are the only
  * place this hub takes a position on cross-product slug shapes — every
  * link rendered on /, /[country], /[country]/[role] flows through these.
  *
@@ -8,9 +8,12 @@
  *   - AlmiSalary: /salary/{country}/{role}        (almisalary-v2 sitemap.ts)
  *   - AlmiJob:    /jobs/{country}/{role}          (almijob-v2 app/jobs/[country]/[role])
  *   - AlmiStudy:  /universities/{country}         (country-level only; not role-keyed)
+ *   - AlmiPrep / AlmiPTE: homepage only. These are English-test products (IELTS /
+ *     PTE) — the same test everywhere, so they are NOT country- or role-keyed;
+ *     countryUrl returns the origin and countryRoleUrl is null.
  */
 
-export type ProductKey = "job" | "salary" | "study" | "cv";
+export type ProductKey = "job" | "salary" | "study" | "cv" | "prep" | "pte";
 
 export type Product = {
   key: ProductKey;
@@ -54,6 +57,22 @@ export const PRODUCTS: Product[] = [
     tagline: "HEC/accredited universities and scholarship pathways.",
     origin: "https://almistudy.almiworld.com",
     countryUrl: (c) => `https://almistudy.almiworld.com/universities/${c}`,
+    countryRoleUrl: null,
+  },
+  {
+    key: "prep",
+    name: "AlmiPrep",
+    tagline: "IELTS practice with honest AI feedback on every skill.",
+    origin: "https://almiprep.almiworld.com",
+    countryUrl: () => "https://almiprep.almiworld.com",
+    countryRoleUrl: null,
+  },
+  {
+    key: "pte",
+    name: "AlmiPTE",
+    tagline: "PTE Academic practice with honest AI feedback.",
+    origin: "https://almipte.almiworld.com",
+    countryUrl: () => "https://almipte.almiworld.com",
     countryRoleUrl: null,
   },
 ];

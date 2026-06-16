@@ -67,7 +67,7 @@ export async function generateMetadata({
   if (!c) return { title: "Not found" };
   return {
     title: `Build your career in ${c.name} — AlmiWorld`,
-    description: `Jobs, salaries, universities, and CV guidance for ${c.name}, linked across the four AlmiWorld products.`,
+    description: `Jobs, salaries, universities, and CV guidance for ${c.name}, linked across the six AlmiWorld products.`,
     // Self-canonical so the country hub is the consolidation target for its
     // [country]/[role] grid pages (which canonicalise up to here). Without
     // this it would inherit the layout fallback (the homepage).
@@ -109,8 +109,9 @@ export default async function HubPage({
         </h1>
         <p className="text-neutral-600">
           Applications in {c.name} are typically written in {c.primaryLanguage}.
-          Use the four AlmiWorld products below for jobs, pay ranges,
-          universities, and a CV tuned to local conventions.
+          Use the six AlmiWorld products below for jobs, pay ranges,
+          universities, a CV tuned to local conventions, plus IELTS and
+          PTE practice.
         </p>
       </header>
 
