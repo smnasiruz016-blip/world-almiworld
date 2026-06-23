@@ -23,6 +23,7 @@
 import type { MetadataRoute } from "next";
 import { COUNTRIES_SERVED } from "@/lib/countries";
 import { ALL_ROLES } from "@/lib/roles";
+import { hasFreeCvContent } from "@/lib/free-cv-content";
 
 const SITE_ORIGIN = "https://world.almiworld.com";
 
@@ -64,5 +65,13 @@ export default async function sitemap({
     priority: 0.75,
   }));
 
-  return [home, ...countryHubs, ...roleHubs];
+  // CV advertise-landing pages (shopfront → AlmiCV). Self-canonical, listed only
+  // where sourced per-country content exists (real-data-or-noindex gate).
+  const cvAdvertise: MetadataRoute.Sitemap = [];
+  for (const c of COUNTRIES_SERVED) {
+    if (!hasFreeCvContent(c.slug)) continue;
+    cvAdvertise.push({ url: `${SITE_ORIGIN}/free-cv-maker/${c.slug}`, lastModified, changeFrequency: "weekly", priority: 0.8 });
+  }
+
+  return [home, ...countryHubs, ...roleHubs, ...cvAdvertise];
 }

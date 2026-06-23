@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+/* AlmiWorld family palette (cream/coral/plum) — shared token names with AlmiCV
+   so advertise-landing pages style consistently across the network. */
+@theme {
+  --color-cream: #FFFBF5;
+  --color-cream-soft: #FFF5E8;
+  --color-peach: #FFE8D6;
+  --color-coral: #FF7A6B;
+  --color-coral-deep: #D85A4D;
+  --color-coral-soft: #FFB5AB;
+  --color-plum: #2D1B3D;
+  --color-plum-soft: #6B5B7A;
+  --color-plum-faint: #9D8FAB;
+}
