@@ -72,6 +72,7 @@ export default async function sitemap({
     if (!hasFreeCvContent(c.slug)) continue;
     cvAdvertise.push({ url: `${SITE_ORIGIN}/free-cv-maker/${c.slug}`, lastModified, changeFrequency: "weekly", priority: 0.8 });
     cvAdvertise.push({ url: `${SITE_ORIGIN}/cv-builder/${c.slug}`, lastModified, changeFrequency: "weekly", priority: 0.8 });
+    cvAdvertise.push({ url: `${SITE_ORIGIN}/ai-cv-builder/${c.slug}`, lastModified, changeFrequency: "weekly", priority: 0.8 });
   }
 
   return [home, ...countryHubs, ...roleHubs, ...cvAdvertise];
