@@ -6,18 +6,20 @@
  * Next's metadata route at build time, per
  * almijob-v2/docs/SITEMAP_CHUNKING_FUTURE.md §"Pitfalls").
  *
+ * Mirrors numSitemapChunks() from sitemap.ts so the advertised chunk count can
+ * never drift from the chunks the route actually serves (drift = phantom 404
+ * chunks in GSC).
+ *
  * Submit /sitemap-index.xml to Google Search Console once after deploy.
  */
 
-const SITE_ORIGIN = "https://world.almiworld.com";
+import { numSitemapChunks } from "@/app/sitemap";
 
-// The country×role grid was removed from the sitemap (it canonicalises up to
-// /[country]); the canonical surface (~713 URLs) now fits in chunk 0 alone.
-const NUM_SITEMAPS = 1;
+const SITE_ORIGIN = "https://world.almiworld.com";
 
 export function GET() {
   const now = new Date().toISOString();
-  const entries = Array.from({ length: NUM_SITEMAPS }, (_, i) =>
+  const entries = Array.from({ length: numSitemapChunks() }, (_, i) =>
     `  <sitemap>
     <loc>${SITE_ORIGIN}/sitemap/${i}.xml</loc>
     <lastmod>${now}</lastmod>
