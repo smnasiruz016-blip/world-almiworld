@@ -13,7 +13,7 @@
  *     countryUrl returns the origin and countryRoleUrl is null.
  */
 
-export type ProductKey = "job" | "salary" | "study" | "cv" | "prep" | "pte";
+export type ProductKey = "job" | "salary" | "study" | "cv" | "prep" | "pte" | "oet";
 
 export type Product = {
   key: ProductKey;
@@ -73,6 +73,14 @@ export const PRODUCTS: Product[] = [
     tagline: "PTE Academic practice with honest AI feedback.",
     origin: "https://almipte.almiworld.com",
     countryUrl: () => "https://almipte.almiworld.com",
+    countryRoleUrl: null,
+  },
+  {
+    key: "oet",
+    name: "AlmiOET",
+    tagline: "OET practice for healthcare professionals with honest AI feedback.",
+    origin: "https://almioet.almiworld.com",
+    countryUrl: () => "https://almioet.almiworld.com",
     countryRoleUrl: null,
   },
 ];

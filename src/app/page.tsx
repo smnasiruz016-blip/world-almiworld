@@ -37,6 +37,7 @@ const STEPS = [
       { name: "AlmiPrep", href: "https://almiprep.almiworld.com" },
       { name: "AlmiPTE", href: "https://almipte.almiworld.com" },
       { name: "AlmiTOEFL", href: "https://almitoefl.almiworld.com" },
+      { name: "AlmiOET", href: "https://almioet.almiworld.com" },
     ],
   },
   {
@@ -210,6 +211,10 @@ export default function HomePage() {
           /{" "}
           <a href="https://almitoefl.almiworld.com" className={FOOTER_LINK}>
             AlmiTOEFL
+          </a>{" "}
+          /{" "}
+          <a href="https://almioet.almiworld.com" className={FOOTER_LINK}>
+            AlmiOET
           </a>{" "}
           /{" "}
           <a href="https://almipte.almiworld.com" className={FOOTER_LINK}>
