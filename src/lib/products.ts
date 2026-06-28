@@ -13,7 +13,7 @@
  *     countryUrl returns the origin and countryRoleUrl is null.
  */
 
-export type ProductKey = "job" | "salary" | "study" | "cv" | "prep" | "pte" | "oet";
+export type ProductKey = "job" | "salary" | "study" | "cv" | "prep" | "pte" | "oet" | "det" | "celpip" | "goethe";
 
 export type Product = {
   key: ProductKey;
@@ -81,6 +81,30 @@ export const PRODUCTS: Product[] = [
     tagline: "OET practice for healthcare professionals with honest AI feedback.",
     origin: "https://almioet.almiworld.com",
     countryUrl: () => "https://almioet.almiworld.com",
+    countryRoleUrl: null,
+  },
+  {
+    key: "det",
+    name: "AlmiDET",
+    tagline: "Duolingo English Test practice with honest AI feedback.",
+    origin: "https://almidet.almiworld.com",
+    countryUrl: () => "https://almidet.almiworld.com",
+    countryRoleUrl: null,
+  },
+  {
+    key: "celpip",
+    name: "AlmiCELPIP",
+    tagline: "CELPIP practice for Canadian immigration with honest AI feedback.",
+    origin: "https://almicelpip.almiworld.com",
+    countryUrl: () => "https://almicelpip.almiworld.com",
+    countryRoleUrl: null,
+  },
+  {
+    key: "goethe",
+    name: "AlmiGoethe",
+    tagline: "Goethe-Zertifikat German exam practice with honest AI feedback.",
+    origin: "https://almigoethe.almiworld.com",
+    countryUrl: () => "https://almigoethe.almiworld.com",
     countryRoleUrl: null,
   },
 ];

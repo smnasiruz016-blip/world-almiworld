@@ -38,6 +38,9 @@ const STEPS = [
       { name: "AlmiPTE", href: "https://almipte.almiworld.com" },
       { name: "AlmiTOEFL", href: "https://almitoefl.almiworld.com" },
       { name: "AlmiOET", href: "https://almioet.almiworld.com" },
+      { name: "AlmiDET", href: "https://almidet.almiworld.com" },
+      { name: "AlmiCELPIP", href: "https://almicelpip.almiworld.com" },
+      { name: "AlmiGoethe", href: "https://almigoethe.almiworld.com" },
     ],
   },
   {
@@ -219,6 +222,18 @@ export default function HomePage() {
           /{" "}
           <a href="https://almipte.almiworld.com" className={FOOTER_LINK}>
             AlmiPTE
+          </a>{" "}
+          /{" "}
+          <a href="https://almidet.almiworld.com" className={FOOTER_LINK}>
+            AlmiDET
+          </a>{" "}
+          /{" "}
+          <a href="https://almicelpip.almiworld.com" className={FOOTER_LINK}>
+            AlmiCELPIP
+          </a>{" "}
+          /{" "}
+          <a href="https://almigoethe.almiworld.com" className={FOOTER_LINK}>
+            AlmiGoethe
           </a>{" "}
           · Build your CV with{" "}
           <a href="https://almicv.almiworld.com" className={FOOTER_LINK}>
