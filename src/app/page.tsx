@@ -41,6 +41,7 @@ const STEPS = [
       { name: "AlmiDET", href: "https://almidet.almiworld.com" },
       { name: "AlmiCELPIP", href: "https://almicelpip.almiworld.com" },
       { name: "AlmiGoethe", href: "https://almigoethe.almiworld.com" },
+      { name: "AlmiFrench", href: "https://almifrench.almiworld.com" },
     ],
   },
   {
@@ -234,6 +235,10 @@ export default function HomePage() {
           /{" "}
           <a href="https://almigoethe.almiworld.com" className={FOOTER_LINK}>
             AlmiGoethe
+          </a>{" "}
+          /{" "}
+          <a href="https://almifrench.almiworld.com" className={FOOTER_LINK}>
+            AlmiFrench
           </a>{" "}
           · Build your CV with{" "}
           <a href="https://almicv.almiworld.com" className={FOOTER_LINK}>
