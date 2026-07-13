@@ -41,10 +41,15 @@ const CHUNK = 45_000;
 // its /[country]/[role] pages canonical-up via the page's own gate).
 const RICH_COUNTRIES = COUNTRIES_SERVED.filter((c) => hasFreeCvContent(c.slug));
 
+// Constant data-snapshot date. A wall-clock new Date() made every sitemap fetch
+// advertise a fresh lastmod, inviting needless re-crawls (the almistudy Ph1b
+// cost fix). Bump only when the dataset changes.
+const LM = new Date("2026-07-13");
+
 let _base: MetadataRoute.Sitemap | null = null;
 function baseUrls(): MetadataRoute.Sitemap {
   if (_base) return _base;
-  const lm = new Date();
+  const lm = LM;
   const out: MetadataRoute.Sitemap = [
     { url: `${SITE_ORIGIN}/`, lastModified: lm, changeFrequency: "weekly", priority: 1.0 },
   ];
@@ -106,7 +111,7 @@ export default async function sitemap({
   const oEnd = end - base.length;
   if (oEnd > 0) {
     const nRoles = ALL_ROLES.length;
-    const lm = new Date();
+    const lm = LM;
     const cap = Math.min(gridSize(), oEnd);
     for (let L = oStart; L < cap; L++) {
       const c = RICH_COUNTRIES[Math.floor(L / nRoles)];
