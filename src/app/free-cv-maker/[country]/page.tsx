@@ -6,7 +6,7 @@ import { getConvention, hasVerifiedConvention } from "@/lib/cv-conventions";
 import { getFreeCvContent, hasFreeCvContent } from "@/lib/free-cv-content";
 import { PRODUCTS } from "@/lib/products";
 
-export const revalidate = 86400;
+export const revalidate = false; // render-once, cache until redeploy — static per-country data, no periodic ISR re-writes
 export const dynamicParams = true;
 
 const SITE_ORIGIN = "https://world.almiworld.com";

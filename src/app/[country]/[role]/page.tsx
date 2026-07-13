@@ -11,9 +11,10 @@ type Params = { country: string; role: string };
 const SITE = "https://world.almiworld.com";
 const YEAR = String(new Date().getFullYear());
 
-// On-demand ISR — the grid is ~50k leaves; seed nothing, render on first request.
+// On-demand ISR — the grid is ~100k leaves; seed nothing, render on first request,
+// then cache until redeploy (static in-repo data) — no periodic ISR re-writes.
 export const dynamicParams = true;
-export const revalidate = 86400;
+export const revalidate = false;
 export function generateStaticParams() {
   return [];
 }
