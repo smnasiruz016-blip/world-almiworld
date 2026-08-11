@@ -28,8 +28,8 @@ export async function generateMetadata({
   const content = getFreeCvContent(c.slug);
   const term = content?.localTerm ?? "CV";
   const url = `${SITE_ORIGIN}/free-cv-maker/${c.slug}`;
-  const title = `Free CV Maker in ${c.name} (${YEAR}) — Free ${term} Builder · AlmiWorld`;
-  const description = `Free CV maker for ${c.name}: AlmiWorld's free, ATS-ready ${term} with local conventions and ${c.primaryLanguage} support — build it on AlmiCV in minutes.`;
+  const title = `CV Maker in ${c.name} (${YEAR}) — ATS-Ready ${term} Builder · AlmiWorld`;
+  const description = `CV maker for ${c.name}: an ATS-ready ${term} with local conventions and ${c.primaryLanguage} support — build it on AlmiCV. 7-day free trial, then $12/month.`;
   return {
     title,
     description,
@@ -60,11 +60,11 @@ export default async function HubFreeCvMaker({
   const faqs: { q: string; a: string }[] = [
     {
       q: `Where can I make a free CV for ${c.name}?`,
-      a: `On AlmiCV, AlmiWorld's CV product. It builds a ${c.name}-ready ${term} with local conventions and ${c.primaryLanguage} support, free to start — no credit card.`,
+      a: `On AlmiCV, AlmiWorld's CV product. It builds a ${c.name}-ready ${term} with local conventions and ${c.primaryLanguage} support. 7-day free trial, then $12/month.`,
     },
     {
       q: `Is it really free?`,
-      a: `Yes — AlmiCV's free plan covers up to 3 CVs with 5 AI assists a month and a clean PDF download. Unlimited CVs and AI are on Pro at $7/month.`,
+      a: `AlmiCV is $12/month with a 7-day free trial — unlimited CVs, full AI and a clean PDF download. Cancel inside the trial and you pay nothing.`,
     },
     {
       q: `Do I need a photo on a ${c.name} CV?`,
@@ -125,27 +125,27 @@ export default async function HubFreeCvMaker({
           <p className="text-base sm:text-lg text-plum-soft leading-relaxed max-w-3xl">
             {content
               ? content.searchContext
-              : `Make a free, ATS-ready CV for ${c.name}.`}{" "}
-            AlmiWorld&apos;s free CV maker — built as AlmiCV — gets you a {c.name}-ready {term} to local conventions, with {c.primaryLanguage} support and a clean PDF, free to start.
+              : `Make an ATS-ready CV for ${c.name}.`}{" "}
+            AlmiWorld&apos;s CV maker — built as AlmiCV — gets you a {c.name}-ready {term} to local conventions, with {c.primaryLanguage} support and a clean PDF. 7-day free trial, then $12/month.
           </p>
           <div className="mt-6">
             <a
               href={buildUrl}
               className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-coral px-7 py-3.5 text-base font-semibold text-white transition-colors hover:bg-coral-deep"
             >
-              Build your free {term} on AlmiCV →
+              Build your {term} on AlmiCV →
             </a>
-            <p className="text-xs text-plum-soft mt-2">Free to start on AlmiCV — no credit card required.</p>
+            <p className="text-xs text-plum-soft mt-2">7-day free trial, then $12/month on AlmiCV. Cancel anytime.</p>
           </div>
         </header>
 
         {/* 3. What AlmiWorld gives you (free), via AlmiCV */}
         <section className="mb-12 rounded-xl border border-peach bg-white p-6 sm:p-8" aria-labelledby="free-title">
           <h2 id="free-title" className="text-xl sm:text-2xl font-semibold tracking-tight text-plum mb-4">
-            What you get, free
+            What you get
           </h2>
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 text-sm text-plum">
-            <li className="flex gap-2"><span aria-hidden="true" className="text-coral">✓</span> Up to 3 CVs and 5 AI assists every month</li>
+            <li className="flex gap-2"><span aria-hidden="true" className="text-coral">✓</span> Unlimited CVs and unlimited AI assists</li>
             <li className="flex gap-2"><span aria-hidden="true" className="text-coral">✓</span> ATS-ready templates recruiters can read</li>
             <li className="flex gap-2"><span aria-hidden="true" className="text-coral">✓</span> A resume score that flags gaps before you apply</li>
             <li className="flex gap-2"><span aria-hidden="true" className="text-coral">✓</span> Clean PDF download, no watermark</li>
@@ -153,7 +153,7 @@ export default async function HubFreeCvMaker({
             <li className="flex gap-2"><span aria-hidden="true" className="text-coral">✓</span> {c.name} CV conventions built in</li>
           </ul>
           <p className="text-sm text-plum-soft leading-relaxed mt-4">
-            It runs on AlmiCV, AlmiWorld&apos;s CV product. Most people get a complete {term} on the free plan; Pro is $7/month for unlimited CVs and AI.
+            It runs on AlmiCV, AlmiWorld&apos;s CV product — $12/month with a 7-day free trial, for unlimited CVs and AI.
           </p>
         </section>
 
@@ -245,7 +245,7 @@ export default async function HubFreeCvMaker({
             href={buildUrl}
             className="inline-block rounded-md bg-coral px-8 py-4 text-lg font-semibold text-white transition-colors hover:bg-coral-deep"
           >
-            Build your free {c.name} CV on AlmiCV →
+            Build your {c.name} CV on AlmiCV →
           </a>
           <p className="text-xs text-plum-soft mt-3">No credit card required to start.</p>
         </section>
