@@ -104,7 +104,7 @@ export default async function HubCvBuilder({
     },
     {
       q: `Is the CV builder free?`,
-      a: `Yes — AlmiCV's free plan covers up to 3 CVs and a clean PDF. Unlimited CVs and AI are on Pro at $7/month.`,
+      a: `AlmiCV is $12/month with a 7-day free trial — unlimited CVs, full AI and a clean PDF. Cancel inside the trial and you pay nothing.`,
     },
     {
       q: `Will it be ATS-ready?`,
@@ -156,7 +156,7 @@ export default async function HubCvBuilder({
             <a href={buildUrl} className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-coral px-7 py-3.5 text-base font-semibold text-white transition-colors hover:bg-coral-deep">
               Build your {term} on AlmiCV →
             </a>
-            <p className="text-xs text-plum-soft mt-2">Free to start on AlmiCV — no credit card required.</p>
+            <p className="text-xs text-plum-soft mt-2">7-day free trial, then $12/month on AlmiCV. Cancel anytime.</p>
           </div>
         </header>
 

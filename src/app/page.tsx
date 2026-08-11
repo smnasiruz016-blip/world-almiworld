@@ -18,8 +18,8 @@ export const metadata: Metadata = {
 
 // The path abroad — each step is a product linking to its own domain.
 // Figures confirmed by the owner (Doctrine #6 — only confirmed facts):
-// 3,000+ universities, 512 roles, 193 countries. Prices: AlmiCV $7/mo,
-// test-prep $12/mo, AlmiJob + AlmiSalary free.
+// 3,000+ universities, 512 roles, 193 countries. Every paid product is
+// $12/mo with a 7-day trial; AlmiJob + AlmiSalary are free.
 const STEPS = [
   {
     n: 1,
@@ -51,7 +51,7 @@ const STEPS = [
     n: 3,
     title: "Build a CV that gets read — AlmiCV",
     body:
-      "Get past the corporate tracking software (ATS) with a real resume score and AI that sharpens your words without erasing your own voice. $7/mo.",
+      "Get past the corporate tracking software (ATS) with a real resume score and AI that sharpens your words without erasing your own voice. $12/mo.",
     links: [{ name: "AlmiCV", href: "https://almicv.almiworld.com" }],
   },
   {
@@ -77,7 +77,7 @@ const FAQS = [
   },
   {
     q: "Is AlmiWorld really free?",
-    a: "Most of it. AlmiStudy (universities), AlmiJob (jobs), and AlmiSalary (salaries) are free, no signup. The only paid tools are AlmiCV ($7/mo) and the test-prep apps — AlmiPrep / AlmiTOEFL / AlmiPTE ($12/mo).",
+    a: "Most of it. AlmiStudy (universities), AlmiJob (jobs), and AlmiSalary (salaries) are free, no signup. The paid tools — AlmiCV and the test-prep apps (AlmiPrep / AlmiTOEFL / AlmiPTE) — are all $12/mo with a 7-day free trial.",
   },
   {
     q: "Which English test should I take — IELTS, PTE, or TOEFL?",

@@ -90,7 +90,7 @@ export default async function HubAiCvBuilder({
     },
     { q: `Will an AI-written ${term} pass the ATS?`, a: `The AI tunes your keywords to the job ad and keeps a clean, single-column-friendly structure ATS software can read, and the resume score checks both before you apply.` },
     { q: `Can the AI tailor my ${term} to a specific job?`, a: `Yes — paste the job description and the AI aligns your wording, skills and keywords to that role for ${c.name} employers.` },
-    { q: `How much does the AI cost?`, a: `AlmiCV's free plan includes 5 AI assists a month, enough to draft and tailor a ${term}. Pro is $7/month for unlimited AI and CVs.` },
+    { q: `How much does the AI cost?`, a: `AlmiCV is $12/month with a 7-day free trial — unlimited AI and unlimited CVs. Cancel inside the trial and you pay nothing.` },
   ];
 
   const faqSchema = {
@@ -137,7 +137,7 @@ export default async function HubAiCvBuilder({
             <a href={buildUrl} className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-coral px-7 py-3.5 text-base font-semibold text-white transition-colors hover:bg-coral-deep">
               Build your {term} with AI on AlmiCV →
             </a>
-            <p className="text-xs text-plum-soft mt-2">Free to start on AlmiCV — 5 AI assists a month, no credit card.</p>
+            <p className="text-xs text-plum-soft mt-2">7-day free trial, then $12/month on AlmiCV. Cancel anytime.</p>
           </div>
         </header>
 
@@ -251,7 +251,7 @@ export default async function HubAiCvBuilder({
           <a href={buildUrl} className="inline-block rounded-md bg-coral px-8 py-4 text-lg font-semibold text-white transition-colors hover:bg-coral-deep">
             Build your {c.name} CV with AI on AlmiCV →
           </a>
-          <p className="text-xs text-plum-soft mt-3">Free to start — no credit card required.</p>
+          <p className="text-xs text-plum-soft mt-3">7-day free trial, then $12/month. Cancel anytime.</p>
         </section>
       </div>
     </main>
